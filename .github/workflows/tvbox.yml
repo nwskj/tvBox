@@ -66,7 +66,6 @@ jobs:
            sed -i '/buildPython("D:\/Programs\/Python\/Python38\/python.exe")/d' pyramid/build.gradle
 
            # ==========新增：修复阿里云maven 502错误 ==========
-           sed -i '/maven.aliyun.com/d' build.gradle
            sed -i '/repositories {/a\
            google()\
            mavenCentral()\
