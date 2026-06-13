@@ -54,17 +54,28 @@ jobs:
         if: ${{ env.commit }}
         working-directory: ${{ matrix.repoName }}
         run: |
-          echo '修改VersionName'
-          sed -i 's/<string name="app_name">TVBox<\/string>/<string name="app_name">电视+<\/string>/' app/src/main/res/values-zh/strings.xml
-          sed -i 's/applicationId.*/applicationId "com.apple.caculator"/g' app/build.gradle
-          sed -i 's/versionName.*/versionName "${{ env.vname }}"/g' app/build.gradle
-          sed -i "/android:text=/s#=\"#=\"${{ env.vname }}\\\\n\\\\n#" app/src/main/res/layout/dialog_about.xml
-          sed -i '/HawkConfig.DEBUG_OPEN/a\putDefault(HawkConfig.API_URL, "${{ secrets.BOX_JSON }}");' app/src/main/java/com/github/tvbox/osc/base/App.java
-          sed -i '/HawkConfig.DEBUG_OPEN/a\putDefault(HawkConfig.HOME_REC_STYLE, true);' app/src/main/java/com/github/tvbox/osc/base/App.java
-          sed -i '/HawkConfig.DEBUG_OPEN/a\putDefault(HawkConfig.HOME_REC, 0);' app/src/main/java/com/github/tvbox/osc/base/App.java
-          echo '已跳过签名配置修改'
-          sed -i '/buildPython("D:\/Programs\/Python\/Python38\/python.exe")/d' pyramid/build.gradle
+           echo '修改VersionName'
+           sed -i 's/<string name="app_name">TVBox<\/string>/<string name="app_name">电视+<\/string>/' app/src/main/res/values-zh/strings.xml
+           sed -i 's/applicationId.*/applicationId "com.apple.caculator"/g' app/build.gradle
+           sed -i 's/versionName.*/versionName "${{ env.vname }}"/g' app/build.gradle
+           sed -i "/android:text=/s#=\"#=\"${{ env.vname }}\\\\n\\\\n#" app/src/main/res/layout/dialog_about.xml
+           sed -i '/HawkConfig.DEBUG_OPEN/a\putDefault(HawkConfig.API_URL, "${{ secrets.BOX_JSON }}");' app/src/main/java/com/github/tvbox/osc/base/App.java
+           sed -i '/HawkConfig.DEBUG_OPEN/a\putDefault(HawkConfig.HOME_REC_STYLE, true);' app/src/main/java/com/github/tvbox/osc/base/App.java
+           sed -i '/HawkConfig.DEBUG_OPEN/a\putDefault(HawkConfig.HOME_REC, 0);' app/src/main/java/com/github/tvbox/osc/base/App.java
+           echo '已跳过签名配置修改'
+           sed -i '/buildPython("D:\/Programs\/Python\/Python38\/python.exe")/d' pyramid/build.gradle
 
+           # ==========新增：修复阿里云maven 502错误 ==========
+           sed -i '/maven.aliyun.com/d' build.gradle
+           sed -i '/repositories {/a\
+         google()\
+         mavenCentral()\
+         maven { url "https://jitpack.io" }' build.gradle
+
+      - name: Configure Gradle global repo
+        run: |
+          mkdir -p ~/.gradle
+          echo "allprojects { repositories { google(); mavenCentral(); maven { url 'https://jitpack.io' } } }" > ~/.gradle/init.gradle
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
